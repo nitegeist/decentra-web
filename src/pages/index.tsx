@@ -271,10 +271,11 @@ export default function Home() {
 									}
 								})}
 							</List>
-							<Box sx={{ width: '100%', display: 'flex', gap: '16px', p: '20px' }}>
-								<TextField sx={{ flexGrow: 1 }} label='Type Something' fullWidth />
-								<Button variant='contained'>Send chat</Button>
-							</Box>
+						</Box>
+						<Divider />
+						<Box sx={{ width: '100%', display: 'flex', gap: '16px', p: '20px' }}>
+							<TextField sx={{ flexGrow: 1 }} label='Type Something' />
+							<Button variant='contained'>Send chat</Button>
 						</Box>
 					</Main>
 					<Drawer
