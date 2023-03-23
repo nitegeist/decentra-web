@@ -1,26 +1,38 @@
+import { useIsMounted } from '@/hooks/useIsMounted';
+import { Receipt } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MailIcon from '@mui/icons-material/Mail';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
 import {
-  Avatar,
-  Box,
-  CssBaseline,
-  Divider,
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography
+	Accordion,
+	AccordionDetails,
+	AccordionSummary,
+	Alert,
+	Avatar,
+	Box,
+	Button,
+	Chip,
+	CssBaseline,
+	Divider,
+	Drawer,
+	IconButton,
+	List,
+	ListItem,
+	ListItemAvatar,
+	ListItemButton,
+	ListItemIcon,
+	ListItemText,
+	TextField,
+	Toolbar,
+	Typography
 } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 import Head from 'next/head';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const drawerWidth = 340;
 
@@ -32,19 +44,55 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 		easing: theme.transitions.easing.sharp,
 		duration: theme.transitions.duration.leavingScreen,
 	}),
-	marginLeft: -drawerWidth,
 	marginRight: -drawerWidth,
 	...(open && {
 		transition: theme.transitions.create('margin', {
 			easing: theme.transitions.easing.easeOut,
 			duration: theme.transitions.duration.enteringScreen,
 		}),
-		marginLeft: 0,
 		marginRight: 0,
 	}),
 }));
 
+const StyledAlert = styled(Alert)(() => ({
+	backgroundColor: 'hsla(231, 17%, 76%, 0.33)',
+}));
+
+const chatHistory = [
+	{
+		name: 'Sero',
+		transaction: false,
+		timeAgo: '4d',
+		message: `I'm trying to upload a profile image to my account but every time I try and upload the image nothing happens. I don't see any error messages but my profile image is still the same.Please can you take a look into this for me?`,
+	},
+	{
+		name: 'You',
+		transaction: false,
+		timeAgo: '4d',
+		message: `Hi Sero, sorry to hear that it's not working as expected. Please can you let me know what image format (JPEG, PNG, etc) you are trying to upload?`,
+	},
+	{
+		transaction: true,
+		author: 'Sero',
+		transactionTitle: 'addOwnerWithThreshold',
+		timeAgo: '4d',
+	},
+	{
+		name: 'You',
+		transaction: false,
+		timeAgo: '4d',
+		message: `Ahh yes, I've tried a JPEG and it's all working fine now. Thanks for your help!`,
+	},
+	{
+		name: 'You',
+		transaction: false,
+		timeAgo: '4d',
+		message: `Thank you Olen. Unfortunately we don't currently support the WebP image format. If you convert that to a JPEG and retry then it should work as expected.You should have received some feedback when you tried to upload it so I'll get someone to take a look into why this didn't happen. Thanks for getting in touch. Is there anything I can help you with?`,
+	},
+];
+
 export default function Home() {
+	const isMounted = useIsMounted();
 	const [open, setOpen] = useState(true);
 	const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
 		if (
@@ -56,6 +104,10 @@ export default function Home() {
 
 		setOpen(open);
 	};
+
+	if (!isMounted) {
+		return <></>;
+	}
 
 	return (
 		<>
@@ -78,9 +130,8 @@ export default function Home() {
 								boxSizing: 'border-box',
 							},
 						}}
-						variant='persistent'
-						anchor='left'
-						open={open}>
+						variant='permanent'
+						anchor='left'>
 						<Toolbar sx={{ display: 'flex', justifyContent: 'flex-end' }}>
 							<IconButton aria-label='add folder'>
 								<AddIcon />
@@ -122,28 +173,108 @@ export default function Home() {
 							</IconButton>
 						</Toolbar>
 						<Divider />
-						<Box sx={{ p: 3 }}>
-							<Typography paragraph>
-								Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-								dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum facilisis leo vel. Risus at
-								ultrices mi tempus imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus. Convallis
-								convallis tellus id interdum velit laoreet id donec ultrices. Odio morbi quis commodo odio aenean sed
-								adipiscing. Amet nisl suscipit adipiscing bibendum est ultricies integer quis. Cursus euismod quis
-								viverra nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo
-								quis imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget arcu
-								dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa sapien
-								faucibus et molestie ac.
-							</Typography>
-							<Typography paragraph>
-								Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla facilisi etiam
-								dignissim diam. Pulvinar elementum integer enim neque volutpat ac tincidunt. Ornare suspendisse sed nisi
-								lacus sed viverra tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis sed odio
-								morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi tincidunt ornare massa eget egestas purus
-								viverra accumsan in. In hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam
-								aliquam sem et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-								nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas accumsan lacus
-								vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-							</Typography>
+						<Box
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'start',
+								alignItems: 'start',
+								gap: '16px',
+								p: 3,
+							}}>
+							<StyledAlert icon={false}>
+								<Typography paragraph>This is the beginning of the timeline from this Safe</Typography>
+								<Typography paragraph>
+									The timeline shows all your chat, transactions and events in one place. Only members of this group can
+									see the chat. Say hi!
+								</Typography>
+								<Typography sx={{ fontStyle: 'italic', fontSize: '12px' }} paragraph>
+									Safe created on 5 March 2023 at 19:34:53 CET
+								</Typography>
+							</StyledAlert>
+							<Typography sx={{ fontWeight: 500 }}>Thursday, 9 March 2023</Typography>
+							<List>
+								{chatHistory.map((chat, index) => {
+									if (chat.transaction) {
+										return (
+											<ListItem key={index} alignItems='flex-start'>
+												<ListItemIcon>
+													<Receipt />
+												</ListItemIcon>
+												<ListItemText
+													disableTypography
+													sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+													primary={
+														<React.Fragment>
+															<Box
+																sx={{
+																	display: 'flex',
+																	justifyContent: 'flex-start',
+																	alignItems: 'center',
+																	gap: '10px',
+																}}>
+																<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																	Transaction proposed by {chat.author}
+																</Typography>
+																<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																	{chat.timeAgo}
+																</Typography>
+															</Box>
+														</React.Fragment>
+													}
+													secondary={
+														<React.Fragment>
+															<Box
+																sx={{
+																	display: 'flex',
+																	justifyContent: 'flex-start',
+																	alignItems: 'center',
+																	gap: '10px',
+																	border: '1px solid #F1F2F5',
+																	borderRadius: '8px',
+																	p: 2,
+																}}>
+																<Avatar sx={{ width: 24, height: 24 }} alt={chat.transactionTitle} />
+																<Typography sx={{ display: 'inline' }} variant='body2' component='span'>
+																	{chat.transactionTitle}
+																</Typography>
+															</Box>
+														</React.Fragment>
+													}
+												/>
+											</ListItem>
+										);
+									} else {
+										return (
+											<ListItem key={index} alignItems='flex-start'>
+												<ListItemAvatar sx={{ minWidth: 35, pr: '10px' }}>
+													<Avatar sx={{ width: 32, height: 32 }} alt={chat.name} />
+												</ListItemAvatar>
+												<ListItemText
+													primary={
+														<React.Fragment>
+															<Typography
+																sx={{ display: 'inline', pr: '8px', fontWeight: 600 }}
+																component='span'
+																variant='subtitle2'>
+																{chat.name}
+															</Typography>
+															<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																{chat.timeAgo}
+															</Typography>
+														</React.Fragment>
+													}
+													secondary={chat.message}
+												/>
+											</ListItem>
+										);
+									}
+								})}
+							</List>
+							<Box sx={{ width: '100%', display: 'flex', gap: '16px', p: '20px' }}>
+								<TextField sx={{ flexGrow: 1 }} label='Type Something' fullWidth />
+								<Button variant='contained'>Send chat</Button>
+							</Box>
 						</Box>
 					</Main>
 					<Drawer
@@ -159,29 +290,88 @@ export default function Home() {
 						variant='persistent'
 						anchor='right'
 						open={open}>
-						<Toolbar />
+						<Toolbar>
+							<Typography sx={{ fontWeight: 500 }}>Overview</Typography>
+						</Toolbar>
 						<Divider />
-						<List>
-							{['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-								<ListItem key={text} disablePadding>
-									<ListItemButton>
-										<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-										<ListItemText primary={text} />
-									</ListItemButton>
+						<Box
+							sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '40px', pt: 3, px: 3 }}>
+							<Typography sx={{ color: grey[500] }}>Network</Typography>
+							<Typography>Ethereum</Typography>
+						</Box>
+						<Box
+							sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '40px', pt: 3, px: 3 }}>
+							<Typography sx={{ color: grey[500] }} paragraph>
+								Address
+							</Typography>
+							<Typography paragraph noWrap>
+								eth:0xaf4752EF320400CdbC659CF24c4da11635cEDb3c
+							</Typography>
+						</Box>
+						<Divider />
+						<Box sx={{ pt: 3, pl: 3 }}>
+							<Typography sx={{ fontWeight: 500 }}>Members</Typography>
+						</Box>
+						<List sx={{ pl: 1 }}>
+							{['Sero', 'Daniel from Decentra'].map((text, index) => (
+								<ListItem key={text}>
+									<ListItemAvatar sx={{ minWidth: 35 }}>
+										<Avatar sx={{ width: 24, height: 24 }} alt={text} />
+									</ListItemAvatar>
+									<ListItemText primary={text} />
 								</ListItem>
 							))}
 						</List>
 						<Divider />
-						<List>
-							{['All mail', 'Trash', 'Spam'].map((text, index) => (
-								<ListItem key={text} disablePadding>
-									<ListItemButton>
-										<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-										<ListItemText primary={text} />
-									</ListItemButton>
+						<Box sx={{ pt: 3, pl: 3 }}>
+							<Typography sx={{ fontWeight: 500 }}>Transaction queue</Typography>
+						</Box>
+						<List sx={{ pl: 1 }}>
+							{['addOwnerWithThreshold', 'On-chain rejection', 'Send'].map((text, index) => (
+								<ListItem key={text}>
+									<ListItemAvatar sx={{ minWidth: 35 }}>
+										<Avatar sx={{ width: 24, height: 24 }} alt={text} />
+									</ListItemAvatar>
+									<ListItemText primary={text} />
 								</ListItem>
 							))}
 						</List>
+						<Divider />
+						<Accordion sx={{ bgcolor: 'background.default', boxShadow: 'none' }} square disableGutters>
+							<AccordionSummary
+								expandIcon={<ExpandMoreIcon />}
+								aria-controls='transactions-content'
+								id='transactions-content-header'>
+								<Box sx={{ display: 'flex', gap: '5px' }}>
+									<Typography sx={{ fontWeight: 500 }}>Transaction History</Typography>
+									<Chip label='7' size='small' />
+								</Box>
+							</AccordionSummary>
+							<AccordionDetails>
+								<Typography>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet
+									blandit leo lobortis eget.
+								</Typography>
+							</AccordionDetails>
+						</Accordion>
+						<Divider />
+						<Box sx={{ p: 3 }}>
+							<Typography sx={{ fontWeight: 500 }} paragraph>
+								Apps
+							</Typography>
+							<Typography paragraph>
+								In Plain you can show any information about the customer you want here without having to sync anything.
+								You can do this by building a very simple API endpoint that Plain will then query when you load this
+								page.
+							</Typography>
+							<Button sx={{ mb: 2 }} variant='outlined' fullWidth>
+								Send Tokens
+							</Button>
+							<Button variant='outlined' fullWidth>
+								Send NFTs
+							</Button>
+						</Box>
+						<Divider />
 					</Drawer>
 				</Box>
 			</main>
