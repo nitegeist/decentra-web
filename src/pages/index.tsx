@@ -3,8 +3,6 @@ import { Receipt } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MailIcon from '@mui/icons-material/Mail';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
 import {
 	Accordion,
@@ -18,13 +16,15 @@ import {
 	CssBaseline,
 	Divider,
 	Drawer,
+	Hidden,
 	IconButton,
 	List,
 	ListItem,
 	ListItemAvatar,
-	ListItemButton,
 	ListItemIcon,
 	ListItemText,
+	Tab,
+	Tabs,
 	TextField,
 	Toolbar,
 	Typography
@@ -33,6 +33,13 @@ import { grey } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 import Head from 'next/head';
 import React, { useState } from 'react';
+import FolderList from '../../components/folder-list';
+import ellipsisAddress from '../../utils/ellipsisAddress';
+interface TabPanelProps {
+	children?: React.ReactNode;
+	index: number;
+	value: number;
+}
 
 const drawerWidth = 340;
 
@@ -91,9 +98,43 @@ const chatHistory = [
 	},
 ];
 
+function TabPanel(props: TabPanelProps) {
+	const { children, value, index, ...other } = props;
+
+	return (
+		<div
+			role='tabpanel'
+			hidden={value !== index}
+			id={`simple-tabpanel-${index}`}
+			aria-labelledby={`simple-tab-${index}`}
+			{...other}>
+			{value === index && (
+				<Box sx={{ p: 1.5 }}>
+					<Typography>{children}</Typography>
+				</Box>
+			)}
+		</div>
+	);
+}
+
+function a11yProps(index: number) {
+	return {
+		id: `simple-tab-${index}`,
+		'aria-controls': `simple-tabpanel-${index}`,
+	};
+}
+
 export default function Home() {
 	const isMounted = useIsMounted();
 	const [open, setOpen] = useState(true);
+	const [value, setValue] = React.useState(0);
+	const [mobileValue, setMobileValue] = React.useState(0);
+	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+		setValue(newValue);
+	};
+	const handleMobileChange = (event: React.SyntheticEvent, newValue: number) => {
+		setMobileValue(newValue);
+	};
 	const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
 		if (
 			event.type === 'keydown' &&
@@ -120,260 +161,498 @@ export default function Home() {
 			<main>
 				<Box sx={{ display: 'flex' }}>
 					<CssBaseline />
-					<Drawer
-						sx={{
-							width: drawerWidth,
-							flexShrink: 0,
-							'& .MuiDrawer-paper': {
+					<Hidden mdDown>
+						<Drawer
+							sx={{
 								width: drawerWidth,
-								bgcolor: 'background.paper',
-								boxSizing: 'border-box',
-							},
-						}}
-						variant='permanent'
-						anchor='left'>
-						<Toolbar sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-							<IconButton aria-label='add folder'>
-								<AddIcon />
-							</IconButton>
-						</Toolbar>
-						<Divider />
-						<List>
-							{['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-								<ListItem key={text} disablePadding>
-									<ListItemButton>
-										<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-										<ListItemText primary={text} />
-									</ListItemButton>
-								</ListItem>
-							))}
-						</List>
-						<Divider />
-						<List>
-							{['All mail', 'Trash', 'Spam'].map((text, index) => (
-								<ListItem key={text} disablePadding>
-									<ListItemButton>
-										<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-										<ListItemText primary={text} />
-									</ListItemButton>
-								</ListItem>
-							))}
-						</List>
-					</Drawer>
+								flexShrink: 0,
+								'& .MuiDrawer-paper': {
+									width: drawerWidth,
+									bgcolor: 'background.paper',
+									boxSizing: 'border-box',
+								},
+							}}
+							variant='permanent'
+							anchor='left'>
+							<Toolbar sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+								<IconButton aria-label='add folder'>
+									<AddIcon />
+								</IconButton>
+							</Toolbar>
+							<Divider />
+							<List sx={{ display: 'flex' }}>
+								{['Kristen', 'Magnus', 'Decentra'].map((text, index) => (
+									<ListItem sx={{ display: 'flex', flexDirection: 'column' }} key={text}>
+										<ListItemAvatar sx={{ minWidth: 35 }}>
+											<Avatar alt={text} />
+										</ListItemAvatar>
+										<ListItemText
+											primary={
+												<Typography sx={{ fontSize: '14px' }} variant='body2' component='span'>
+													{text}
+												</Typography>
+											}
+										/>
+									</ListItem>
+								))}
+							</List>
+							<Box sx={{ width: '100%', height: '100%' }}>
+								<Tabs value={value} onChange={handleChange} aria-label='folder tabs'>
+									<Tab label='All' {...a11yProps(0)} />
+									<Tab label='Ricochet-related' {...a11yProps(1)} />
+									<Tab label='Company multisigs' {...a11yProps(2)} />
+								</Tabs>
+								<TabPanel value={value} index={0}>
+									<FolderList />
+								</TabPanel>
+								<TabPanel value={value} index={1}>
+									Item Two
+								</TabPanel>
+								<TabPanel value={value} index={2}>
+									Item Three
+								</TabPanel>
+							</Box>
+							<Divider />
+							<Box sx={{ width: '100%', display: 'flex', gap: '16px', pt: 2, px: 3 }}>
+								<Avatar alt='Daniel from Decentra' />
+								<Box>
+									<Typography sx={{ fontWeight: 500 }}>Daniel from Decentra</Typography>
+									<Typography sx={{ color: grey[600] }} paragraph>
+										{ellipsisAddress('eth:0xaf4752EF320400CdbC659CF24c4da11635cEDb3c')}
+									</Typography>
+								</Box>
+							</Box>
+						</Drawer>
+					</Hidden>
 					<Main open={open} sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
 						<Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
 							<Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '10px' }}>
-								<Avatar alt='Decentra' src='/static/images/avatar/1.jpg' />
+								<Avatar alt='Decentra' />
 								<Typography variant='h6' component='h6'>
 									Decentra
 								</Typography>
 							</Box>
-							<IconButton onClick={toggleDrawer(!open)}>
-								{open ? <CloseIcon aria-label='close sidebars' /> : <ViewSidebarIcon aria-label='show sidebars' />}
-							</IconButton>
+							<Hidden mdDown>
+								<IconButton onClick={toggleDrawer(!open)}>
+									{open ? <CloseIcon aria-label='close sidebar' /> : <ViewSidebarIcon aria-label='show sidebars' />}
+								</IconButton>
+							</Hidden>
 						</Toolbar>
 						<Divider />
-						<Box
-							sx={{
-								display: 'flex',
-								flexDirection: 'column',
-								justifyContent: 'start',
-								alignItems: 'start',
-								gap: '16px',
-								p: 3,
-							}}>
-							<StyledAlert icon={false}>
-								<Typography paragraph>This is the beginning of the timeline from this Safe</Typography>
-								<Typography paragraph>
-									The timeline shows all your chat, transactions and events in one place. Only members of this group can
-									see the chat. Say hi!
-								</Typography>
-								<Typography sx={{ fontStyle: 'italic', fontSize: '12px' }} paragraph>
-									Safe created on 5 March 2023 at 19:34:53 CET
-								</Typography>
-							</StyledAlert>
-							<Typography sx={{ fontWeight: 500 }}>Thursday, 9 March 2023</Typography>
-							<List>
-								{chatHistory.map((chat, index) => {
-									if (chat.transaction) {
-										return (
-											<ListItem key={index} alignItems='flex-start'>
-												<ListItemIcon>
-													<Receipt />
-												</ListItemIcon>
-												<ListItemText
-													disableTypography
-													sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
-													primary={
-														<React.Fragment>
-															<Box
-																sx={{
-																	display: 'flex',
-																	justifyContent: 'flex-start',
-																	alignItems: 'center',
-																	gap: '10px',
-																}}>
-																<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
-																	Transaction proposed by {chat.author}
+						<Hidden mdUp>
+							<Box sx={{ width: '100%', height: '100%' }}>
+								<Tabs
+									variant='fullWidth'
+									value={mobileValue}
+									onChange={handleMobileChange}
+									aria-label='responsive tabs'>
+									<Tab label='Timeline' {...a11yProps(0)} />
+									<Tab label='Overview' {...a11yProps(1)} />
+								</Tabs>
+								<TabPanel value={mobileValue} index={0}>
+									<Box
+										sx={{
+											display: 'flex',
+											flexDirection: 'column',
+											justifyContent: 'start',
+											alignItems: 'start',
+											gap: '16px',
+										}}>
+										<StyledAlert icon={false}>
+											<Typography paragraph>This is the beginning of the timeline from this Safe</Typography>
+											<Typography paragraph>
+												The timeline shows all your chat, transactions and events in one place. Only members of this
+												group can see the chat. Say hi!
+											</Typography>
+											<Typography sx={{ fontStyle: 'italic', fontSize: '12px' }} paragraph>
+												Safe created on 5 March 2023 at 19:34:53 CET
+											</Typography>
+										</StyledAlert>
+										<Typography sx={{ fontWeight: 500 }}>Thursday, 9 March 2023</Typography>
+										<List>
+											{chatHistory.map((chat, index) => {
+												if (chat.transaction) {
+													return (
+														<ListItem key={index} alignItems='flex-start'>
+															<ListItemIcon>
+																<Receipt />
+															</ListItemIcon>
+															<ListItemText
+																disableTypography
+																sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+																primary={
+																	<React.Fragment>
+																		<Box
+																			sx={{
+																				display: 'flex',
+																				justifyContent: 'flex-start',
+																				alignItems: 'center',
+																				gap: '10px',
+																			}}>
+																			<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																				Transaction proposed by {chat.author}
+																			</Typography>
+																			<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																				{chat.timeAgo}
+																			</Typography>
+																		</Box>
+																	</React.Fragment>
+																}
+																secondary={
+																	<React.Fragment>
+																		<Box
+																			sx={{
+																				display: 'flex',
+																				justifyContent: 'flex-start',
+																				alignItems: 'center',
+																				gap: '10px',
+																				border: '1px solid #F1F2F5',
+																				borderRadius: '8px',
+																				p: 2,
+																			}}>
+																			<Avatar sx={{ width: 24, height: 24 }} alt={chat.transactionTitle} />
+																			<Typography sx={{ display: 'inline' }} variant='body2' component='span'>
+																				{chat.transactionTitle}
+																			</Typography>
+																		</Box>
+																	</React.Fragment>
+																}
+															/>
+														</ListItem>
+													);
+												} else {
+													return (
+														<ListItem key={index} alignItems='flex-start'>
+															<ListItemAvatar sx={{ minWidth: 35, pr: '10px' }}>
+																<Avatar sx={{ width: 32, height: 32 }} alt={chat.name} />
+															</ListItemAvatar>
+															<ListItemText
+																primary={
+																	<React.Fragment>
+																		<Typography
+																			sx={{ display: 'inline', pr: '8px', fontWeight: 600 }}
+																			component='span'
+																			variant='subtitle2'>
+																			{chat.name}
+																		</Typography>
+																		<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																			{chat.timeAgo}
+																		</Typography>
+																	</React.Fragment>
+																}
+																secondary={chat.message}
+															/>
+														</ListItem>
+													);
+												}
+											})}
+										</List>
+									</Box>
+									<Divider />
+									<Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', pt: 2, px: 1 }}>
+										<TextField sx={{ flexGrow: 1 }} label='Type Something' />
+										<Button variant='contained'>Send chat</Button>
+									</Box>
+								</TabPanel>
+								<TabPanel value={mobileValue} index={1}>
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'flex-start',
+											alignItems: 'center',
+											gap: '40px',
+											pt: 3,
+											px: 3,
+										}}>
+										<Typography sx={{ color: grey[500] }}>Network</Typography>
+										<Typography>Ethereum</Typography>
+									</Box>
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'flex-start',
+											alignItems: 'center',
+											gap: '40px',
+											pt: 3,
+											px: 3,
+										}}>
+										<Typography sx={{ color: grey[500] }} paragraph>
+											Address
+										</Typography>
+										<Typography paragraph noWrap>
+											{ellipsisAddress('eth:0xaf4752EF320400CdbC659CF24c4da11635cEDb3c')}
+										</Typography>
+									</Box>
+									<Divider />
+									<Box sx={{ pt: 3, pl: 3 }}>
+										<Typography sx={{ fontWeight: 500 }}>Members</Typography>
+									</Box>
+									<List sx={{ pl: 1 }}>
+										{['Sero', 'Daniel from Decentra'].map((text, index) => (
+											<ListItem key={text}>
+												<ListItemAvatar sx={{ minWidth: 35 }}>
+													<Avatar sx={{ width: 24, height: 24 }} alt={text} />
+												</ListItemAvatar>
+												<ListItemText primary={text} />
+											</ListItem>
+										))}
+									</List>
+									<Divider />
+									<Box sx={{ pt: 3, pl: 3 }}>
+										<Typography sx={{ fontWeight: 500 }}>Transaction queue</Typography>
+									</Box>
+									<List sx={{ pl: 1 }}>
+										{['addOwnerWithThreshold', 'On-chain rejection', 'Send'].map((text, index) => (
+											<ListItem key={text}>
+												<ListItemAvatar sx={{ minWidth: 35 }}>
+													<Avatar sx={{ width: 24, height: 24 }} alt={text} />
+												</ListItemAvatar>
+												<ListItemText primary={text} />
+											</ListItem>
+										))}
+									</List>
+									<Divider />
+									<Accordion sx={{ bgcolor: 'background.default', boxShadow: 'none' }} square disableGutters>
+										<AccordionSummary
+											expandIcon={<ExpandMoreIcon />}
+											aria-controls='transactions-content'
+											id='transactions-content-header'>
+											<Box sx={{ display: 'flex', gap: '5px' }}>
+												<Typography sx={{ fontWeight: 500 }}>Transaction History</Typography>
+												<Chip label='7' size='small' />
+											</Box>
+										</AccordionSummary>
+										<AccordionDetails>
+											<Typography>
+												Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit
+												amet blandit leo lobortis eget.
+											</Typography>
+										</AccordionDetails>
+									</Accordion>
+									<Divider />
+									<Box sx={{ p: 3 }}>
+										<Typography sx={{ fontWeight: 500 }} paragraph>
+											Apps
+										</Typography>
+										<Typography paragraph>
+											In Plain you can show any information about the customer you want here without having to sync
+											anything. You can do this by building a very simple API endpoint that Plain will then query when
+											you load this page.
+										</Typography>
+										<Button sx={{ mb: 2 }} variant='outlined' fullWidth>
+											Send Tokens
+										</Button>
+										<Button variant='outlined' fullWidth>
+											Send NFTs
+										</Button>
+									</Box>
+								</TabPanel>
+							</Box>
+						</Hidden>
+						<Hidden mdDown>
+							<Box
+								sx={{
+									display: 'flex',
+									flexDirection: 'column',
+									justifyContent: 'start',
+									alignItems: 'start',
+									gap: '16px',
+									p: 3,
+								}}>
+								<StyledAlert icon={false}>
+									<Typography paragraph>This is the beginning of the timeline from this Safe</Typography>
+									<Typography paragraph>
+										The timeline shows all your chat, transactions and events in one place. Only members of this group
+										can see the chat. Say hi!
+									</Typography>
+									<Typography sx={{ fontStyle: 'italic', fontSize: '12px' }} paragraph>
+										Safe created on 5 March 2023 at 19:34:53 CET
+									</Typography>
+								</StyledAlert>
+								<Typography sx={{ fontWeight: 500 }}>Thursday, 9 March 2023</Typography>
+								<List>
+									{chatHistory.map((chat, index) => {
+										if (chat.transaction) {
+											return (
+												<ListItem key={index} alignItems='flex-start'>
+													<ListItemIcon>
+														<Receipt />
+													</ListItemIcon>
+													<ListItemText
+														disableTypography
+														sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+														primary={
+															<React.Fragment>
+																<Box
+																	sx={{
+																		display: 'flex',
+																		justifyContent: 'flex-start',
+																		alignItems: 'center',
+																		gap: '10px',
+																	}}>
+																	<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																		Transaction proposed by {chat.author}
+																	</Typography>
+																	<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
+																		{chat.timeAgo}
+																	</Typography>
+																</Box>
+															</React.Fragment>
+														}
+														secondary={
+															<React.Fragment>
+																<Box
+																	sx={{
+																		display: 'flex',
+																		justifyContent: 'flex-start',
+																		alignItems: 'center',
+																		gap: '10px',
+																		border: '1px solid #F1F2F5',
+																		borderRadius: '8px',
+																		p: 2,
+																	}}>
+																	<Avatar sx={{ width: 24, height: 24 }} alt={chat.transactionTitle} />
+																	<Typography sx={{ display: 'inline' }} variant='body2' component='span'>
+																		{chat.transactionTitle}
+																	</Typography>
+																</Box>
+															</React.Fragment>
+														}
+													/>
+												</ListItem>
+											);
+										} else {
+											return (
+												<ListItem key={index} alignItems='flex-start'>
+													<ListItemAvatar sx={{ minWidth: 35, pr: '10px' }}>
+														<Avatar sx={{ width: 32, height: 32 }} alt={chat.name} />
+													</ListItemAvatar>
+													<ListItemText
+														primary={
+															<React.Fragment>
+																<Typography
+																	sx={{ display: 'inline', pr: '8px', fontWeight: 600 }}
+																	component='span'
+																	variant='subtitle2'>
+																	{chat.name}
 																</Typography>
 																<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
 																	{chat.timeAgo}
 																</Typography>
-															</Box>
-														</React.Fragment>
-													}
-													secondary={
-														<React.Fragment>
-															<Box
-																sx={{
-																	display: 'flex',
-																	justifyContent: 'flex-start',
-																	alignItems: 'center',
-																	gap: '10px',
-																	border: '1px solid #F1F2F5',
-																	borderRadius: '8px',
-																	p: 2,
-																}}>
-																<Avatar sx={{ width: 24, height: 24 }} alt={chat.transactionTitle} />
-																<Typography sx={{ display: 'inline' }} variant='body2' component='span'>
-																	{chat.transactionTitle}
-																</Typography>
-															</Box>
-														</React.Fragment>
-													}
-												/>
-											</ListItem>
-										);
-									} else {
-										return (
-											<ListItem key={index} alignItems='flex-start'>
-												<ListItemAvatar sx={{ minWidth: 35, pr: '10px' }}>
-													<Avatar sx={{ width: 32, height: 32 }} alt={chat.name} />
-												</ListItemAvatar>
-												<ListItemText
-													primary={
-														<React.Fragment>
-															<Typography
-																sx={{ display: 'inline', pr: '8px', fontWeight: 600 }}
-																component='span'
-																variant='subtitle2'>
-																{chat.name}
-															</Typography>
-															<Typography sx={{ display: 'inline' }} component='span' variant='body2'>
-																{chat.timeAgo}
-															</Typography>
-														</React.Fragment>
-													}
-													secondary={chat.message}
-												/>
-											</ListItem>
-										);
-									}
-								})}
-							</List>
-						</Box>
-						<Divider />
-						<Box sx={{ width: '100%', display: 'flex', gap: '16px', p: '20px' }}>
-							<TextField sx={{ flexGrow: 1 }} label='Type Something' />
-							<Button variant='contained'>Send chat</Button>
-						</Box>
+															</React.Fragment>
+														}
+														secondary={chat.message}
+													/>
+												</ListItem>
+											);
+										}
+									})}
+								</List>
+							</Box>
+							<Divider />
+							<Box sx={{ width: '100%', display: 'flex', gap: '16px', p: '20px' }}>
+								<TextField sx={{ flexGrow: 1 }} label='Type Something' />
+								<Button variant='contained'>Send chat</Button>
+							</Box>
+						</Hidden>
 					</Main>
-					<Drawer
-						sx={{
-							width: drawerWidth,
-							flexShrink: 0,
-							'& .MuiDrawer-paper': {
+					<Hidden mdDown>
+						<Drawer
+							sx={{
 								width: drawerWidth,
-								bgcolor: 'background.default',
-								boxSizing: 'border-box',
-							},
-						}}
-						variant='persistent'
-						anchor='right'
-						open={open}>
-						<Toolbar>
-							<Typography sx={{ fontWeight: 500 }}>Overview</Typography>
-						</Toolbar>
-						<Divider />
-						<Box
-							sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '40px', pt: 3, px: 3 }}>
-							<Typography sx={{ color: grey[500] }}>Network</Typography>
-							<Typography>Ethereum</Typography>
-						</Box>
-						<Box
-							sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '40px', pt: 3, px: 3 }}>
-							<Typography sx={{ color: grey[500] }} paragraph>
-								Address
-							</Typography>
-							<Typography paragraph noWrap>
-								eth:0xaf4752EF320400CdbC659CF24c4da11635cEDb3c
-							</Typography>
-						</Box>
-						<Divider />
-						<Box sx={{ pt: 3, pl: 3 }}>
-							<Typography sx={{ fontWeight: 500 }}>Members</Typography>
-						</Box>
-						<List sx={{ pl: 1 }}>
-							{['Sero', 'Daniel from Decentra'].map((text, index) => (
-								<ListItem key={text}>
-									<ListItemAvatar sx={{ minWidth: 35 }}>
-										<Avatar sx={{ width: 24, height: 24 }} alt={text} />
-									</ListItemAvatar>
-									<ListItemText primary={text} />
-								</ListItem>
-							))}
-						</List>
-						<Divider />
-						<Box sx={{ pt: 3, pl: 3 }}>
-							<Typography sx={{ fontWeight: 500 }}>Transaction queue</Typography>
-						</Box>
-						<List sx={{ pl: 1 }}>
-							{['addOwnerWithThreshold', 'On-chain rejection', 'Send'].map((text, index) => (
-								<ListItem key={text}>
-									<ListItemAvatar sx={{ minWidth: 35 }}>
-										<Avatar sx={{ width: 24, height: 24 }} alt={text} />
-									</ListItemAvatar>
-									<ListItemText primary={text} />
-								</ListItem>
-							))}
-						</List>
-						<Divider />
-						<Accordion sx={{ bgcolor: 'background.default', boxShadow: 'none' }} square disableGutters>
-							<AccordionSummary
-								expandIcon={<ExpandMoreIcon />}
-								aria-controls='transactions-content'
-								id='transactions-content-header'>
-								<Box sx={{ display: 'flex', gap: '5px' }}>
-									<Typography sx={{ fontWeight: 500 }}>Transaction History</Typography>
-									<Chip label='7' size='small' />
-								</Box>
-							</AccordionSummary>
-							<AccordionDetails>
-								<Typography>
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet
-									blandit leo lobortis eget.
+								flexShrink: 0,
+								'& .MuiDrawer-paper': {
+									width: drawerWidth,
+									bgcolor: 'background.default',
+									boxSizing: 'border-box',
+								},
+							}}
+							variant='persistent'
+							anchor='right'
+							open={open}>
+							<Toolbar>
+								<Typography sx={{ fontWeight: 500 }}>Overview</Typography>
+							</Toolbar>
+							<Divider />
+							<Box
+								sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '40px', pt: 3, px: 3 }}>
+								<Typography sx={{ color: grey[500] }}>Network</Typography>
+								<Typography>Ethereum</Typography>
+							</Box>
+							<Box
+								sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '40px', pt: 3, px: 3 }}>
+								<Typography sx={{ color: grey[500] }} paragraph>
+									Address
 								</Typography>
-							</AccordionDetails>
-						</Accordion>
-						<Divider />
-						<Box sx={{ p: 3 }}>
-							<Typography sx={{ fontWeight: 500 }} paragraph>
-								Apps
-							</Typography>
-							<Typography paragraph>
-								In Plain you can show any information about the customer you want here without having to sync anything.
-								You can do this by building a very simple API endpoint that Plain will then query when you load this
-								page.
-							</Typography>
-							<Button sx={{ mb: 2 }} variant='outlined' fullWidth>
-								Send Tokens
-							</Button>
-							<Button variant='outlined' fullWidth>
-								Send NFTs
-							</Button>
-						</Box>
-						<Divider />
-					</Drawer>
+								<Typography paragraph noWrap>
+									eth:0xaf4752EF320400CdbC659CF24c4da11635cEDb3c
+								</Typography>
+							</Box>
+							<Divider />
+							<Box sx={{ pt: 3, pl: 3 }}>
+								<Typography sx={{ fontWeight: 500 }}>Members</Typography>
+							</Box>
+							<List sx={{ pl: 1 }}>
+								{['Sero', 'Daniel from Decentra'].map((text, index) => (
+									<ListItem key={text}>
+										<ListItemAvatar sx={{ minWidth: 35 }}>
+											<Avatar sx={{ width: 24, height: 24 }} alt={text} />
+										</ListItemAvatar>
+										<ListItemText primary={text} />
+									</ListItem>
+								))}
+							</List>
+							<Divider />
+							<Box sx={{ pt: 3, pl: 3 }}>
+								<Typography sx={{ fontWeight: 500 }}>Transaction queue</Typography>
+							</Box>
+							<List sx={{ pl: 1 }}>
+								{['addOwnerWithThreshold', 'On-chain rejection', 'Send'].map((text, index) => (
+									<ListItem key={text}>
+										<ListItemAvatar sx={{ minWidth: 35 }}>
+											<Avatar sx={{ width: 24, height: 24 }} alt={text} />
+										</ListItemAvatar>
+										<ListItemText primary={text} />
+									</ListItem>
+								))}
+							</List>
+							<Divider />
+							<Accordion sx={{ bgcolor: 'background.default', boxShadow: 'none' }} square disableGutters>
+								<AccordionSummary
+									expandIcon={<ExpandMoreIcon />}
+									aria-controls='transactions-content'
+									id='transactions-content-header'>
+									<Box sx={{ display: 'flex', gap: '5px' }}>
+										<Typography sx={{ fontWeight: 500 }}>Transaction History</Typography>
+										<Chip label='7' size='small' />
+									</Box>
+								</AccordionSummary>
+								<AccordionDetails>
+									<Typography>
+										Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet
+										blandit leo lobortis eget.
+									</Typography>
+								</AccordionDetails>
+							</Accordion>
+							<Divider />
+							<Box sx={{ p: 3 }}>
+								<Typography sx={{ fontWeight: 500 }} paragraph>
+									Apps
+								</Typography>
+								<Typography paragraph>
+									In Plain you can show any information about the customer you want here without having to sync
+									anything. You can do this by building a very simple API endpoint that Plain will then query when you
+									load this page.
+								</Typography>
+								<Button sx={{ mb: 2 }} variant='outlined' fullWidth>
+									Send Tokens
+								</Button>
+								<Button variant='outlined' fullWidth>
+									Send NFTs
+								</Button>
+							</Box>
+						</Drawer>
+					</Hidden>
 				</Box>
 			</main>
 		</>
