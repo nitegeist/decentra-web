@@ -550,7 +550,7 @@ export default function Home() {
 								</List>
 							</Box>
 							<Divider />
-							<Box sx={{ width: '100%', display: 'flex', gap: '16px', p: '20px' }}>
+							<Box sx={{ width: '100%', display: 'flex', gap: '16px', p: 3 }}>
 								<TextField sx={{ flexGrow: 1 }} label='Type Something' />
 								<Button variant='contained'>Send chat</Button>
 							</Box>
