@@ -6,6 +6,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
 import { useState } from 'react';
 import ellipsisAddress from '../../utils/ellipsisAddress';
+import BadgeAvatar from '../BadgeAvatar';
 
 const folders = [
 	{
@@ -14,6 +15,7 @@ const folders = [
 	},
 	{
 		name: 'Decentra',
+		badge: true,
 		address: 'eth:0xaf4752EF320400CdbC659CF24c4da11635cEDb3c',
 	},
 	{
@@ -45,7 +47,7 @@ export default function FolderList() {
 					selected={selectedIndex === index}
 					onClick={(event) => handleListItemClick(event, index)}>
 					<ListItemAvatar>
-						<Avatar alt={folder.name} />
+						{folder.badge ? <BadgeAvatar name={folder.name} /> : <Avatar alt={folder.name} />}
 					</ListItemAvatar>
 					<ListItemText
 						primary={<Typography sx={{ fontWeight: 500 }}>{folder.name}</Typography>}
